@@ -47,6 +47,6 @@ Many thanks to the following sponsors for supporting this work:
 |  Plugin Home: | http://foswiki.org/Extensions/DebugLogPlugin |
 |  Support: | http://foswiki.org/Support/DebugLogPlugin |
 
-__Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %SYSTEMWEB%.SitePreferences
+__Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %SYSTEMWEB%.DeveloperDocumentationCategory, %SYSTEMWEB%.AdminDocumentationCategory, %MAINWEB%.SitePreferences
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on foswiki.org instead. -->
