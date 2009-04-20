@@ -130,7 +130,8 @@ sub initPlugin {
     # Example code of how to get a preference value, register a variable handler
     # and register a RESTHandler. (remove code you do not need)
     
-    writePOST() if (Foswiki::Func::getRequest()->method() eq 'POST');
+    my $method = Foswiki::Func::getRequest()->method() || '';
+    writePOST() if $method eq 'POST';
     
 
     # Set plugin preferences in LocalSite.cfg, like this:
