@@ -159,11 +159,9 @@ sub writePOST {
     #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
     my $dir = Foswiki::Func::getWorkArea(${pluginName});
-    my $script = Foswiki::Func::getCgiQuery()->script_name();
-    $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
-    $script = $1;
+    my $script = Foswiki::Func::getCgiQuery()->action();
     #TODO: use Foswiki session id's if available
-    my $session = Foswiki::Func::getCgiQuery()->remote_host();
+    my $session = Foswiki::Func::getCgiQuery()->remote_addr();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
 
@@ -171,14 +169,14 @@ sub writePOST {
                           $Current_web.'.'.$Current_topic, $Current_user, $session,
                           Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
                           ));
-    my $tickfile = '>'.$dir.'/'.$file;
+    my $tickfile = $dir.'/'.$file;
 
     Foswiki::Func::writeDebug( "$tickfile" ) if $debug;
 
     $tickfile =~ /^(.*)$/;      #TODO: need to remove this and untaint at the right source
     $tickfile = $1;
 
-    open( TICK, $tickfile);
+    open( TICK, '>', $tickfile) or warn "$!";
     #print TICK $text;       #a nothing :)
     Foswiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
     close( TICK );
@@ -189,11 +187,9 @@ sub writeTEXT {
     #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
     my $dir = Foswiki::Func::getWorkArea(${pluginName});
-    my $script = Foswiki::Func::getCgiQuery()->script_name();
-    $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
-    $script = $1;
+    my $script = Foswiki::Func::getCgiQuery()->action();
     #TODO: use Foswiki session id's if available
-    my $session = Foswiki::Func::getCgiQuery()->remote_host();
+    my $session = Foswiki::Func::getCgiQuery()->remote_addr();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
 
