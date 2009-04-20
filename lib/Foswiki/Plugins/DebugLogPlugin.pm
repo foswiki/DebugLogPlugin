@@ -130,7 +130,7 @@ sub initPlugin {
     # Example code of how to get a preference value, register a variable handler
     # and register a RESTHandler. (remove code you do not need)
     
-    if ( my $method = Foswiki::Func::getRequest()->method() ) {
+    if ( my $method = Foswiki::Func::getCgiQuery()->request_method() ) {
 	writePOST() if $method eq 'POST';
 	#writeGET() if $method eq 'GET';
     }
