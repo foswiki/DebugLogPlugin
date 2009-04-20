@@ -1,4 +1,4 @@
-# Plugin for TWiki Collaboration Platform, http://TWiki.org/
+# Plugin for Foswiki Collaboration Platform, http://foswiki.org/
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -15,9 +15,9 @@
 
 ---+ package Foswiki::Plugins::DebugLogPlugin
 
-To interact with TWiki use ONLY the official API functions
+To interact with Foswiki use ONLY the official API functions
 in the Foswiki::Func module. Do not reference any functions or
-variables elsewhere in TWiki, as these are subject to change
+variables elsewhere in Foswiki, as these are subject to change
 without prior warning, and your plugin may suddenly stop
 working.
 
@@ -28,15 +28,15 @@ delete the whole of handlers you don't use before you release your
 plugin.
 
 __NOTE:__ When developing a plugin it is important to remember that
-TWiki is tolerant of plugins that do not compile. In this case,
+Foswiki is tolerant of plugins that do not compile. In this case,
 the failure will be silent but the plugin will not be available.
-See %TWIKIWEB%.TWikiPlugins#FAILEDPLUGINS for error messages.
+See %SYSTEMWEB%.InstalledPlugins#FAILEDPLUGINS for error messages.
 
 __NOTE:__ Defining deprecated handlers will cause the handlers to be 
-listed in %TWIKIWEB%.TWikiPlugins#FAILEDPLUGINS. See
-%TWIKIWEB%.TWikiPlugins#Handlig_deprecated_functions
+listed in %SYSTEMWEBWEB%.InstalledPlugins#FAILEDPLUGINS. See
+%SYSTEMWEB%.InstalledPlugins#Handlig_deprecated_functions
 for information on regarding deprecated handlers that are defined for
-compatibility with older TWiki versions.
+compatibility with older Foswiki versions.
 
 __NOTE:__ When writing handlers, keep in mind that these may be invoked
 on included topics. For example, if a plugin generates links to the current
@@ -55,12 +55,12 @@ use strict;
 require Foswiki::Func;    # The plugins API
 require Foswiki::Plugins; # For the API version
 
-# $VERSION is referred to by TWiki, and is the only global variable that
+# $VERSION is referred to by Foswiki, and is the only global variable that
 # *must* exist in this package.
 use vars qw( $VERSION $RELEASE $SHORTDESCRIPTION $debug $pluginName $NO_PREFS_IN_TOPIC
             $Current_topic $Current_web $Current_user $installWeb);
 
-# This should always be $Rev: 0 (17 Jan 2008) $ so that TWiki can determine the checked-in
+# This should always be $Rev: 0 (17 Jan 2008) $ so that Foswiki can determine the checked-in
 # status of the plugin. It is used by the build automation tools, so
 # you should leave it alone.
 $VERSION = '$Rev: 0 (17 Jan 2008) $';
@@ -71,15 +71,15 @@ $VERSION = '$Rev: 0 (17 Jan 2008) $';
 $RELEASE = 'TWiki-4.2';
 
 # Short description of this plugin
-# One line description, is shown in the %TWIKIWEB%.TextFormattingRules topic:
-$SHORTDESCRIPTION = 'Detailed Debug logging for TWiki';
+# One line description, is shown in the %SYSTEMWEB%.TextFormattingRules topic:
+$SHORTDESCRIPTION = 'Detailed Debug logging for Foswiki';
 
 # You must set $NO_PREFS_IN_TOPIC to 0 if you want your plugin to use preferences
 # stored in the plugin topic. This default is required for compatibility with
 # older plugins, but imposes a significant performance penalty, and
 # is not recommended. Instead, use $Foswiki::cfg entries set in LocalSite.cfg, or
-# if you want the users to be able to change settings, then use standard TWiki
-# preferences that can be defined in your Main.TWikiPreferences and overridden
+# if you want the users to be able to change settings, then use standard Foswiki
+# preferences that can be defined in your Main.SitePreferences and overridden
 # at the web and topic level.
 $NO_PREFS_IN_TOPIC = 1;
 
@@ -106,9 +106,9 @@ installation from working safely, this handler may use 'die', which
 will be trapped and reported in the browser.
 
 You may also call =Foswiki::Func::registerTagHandler= here to register
-a function to handle variables that have standard TWiki syntax - for example,
+a function to handle variables that have standard Foswiki syntax - for example,
 =%MYTAG{"my param" myarg="My Arg"}%. You can also override internal
-TWiki variable handling functions this way, though this practice is unsupported
+Foswiki variable handling functions this way, though this practice is unsupported
 and highly dangerous!
 
 __Note:__ Please align variables names with the Plugin name, e.g. if 
@@ -136,7 +136,7 @@ sub initPlugin {
     # Set plugin preferences in LocalSite.cfg, like this:
     # $Foswiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} = 1;
     # Always provide a default in case the setting is not defined in
-    # LocalSite.cfg. See TWiki.TWikiPlugins for help in adding your plugin
+    # LocalSite.cfg. See %SYSTEMWEB%.InstalledPlugins for help in adding your plugin
     # configuration to the =configure= interface.
     my $setting = $Foswiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} || 0;
     $debug = $Foswiki::cfg{Plugins}{DebugLogPlugin}{Debug} || 0;
@@ -156,13 +156,13 @@ sub initPlugin {
 
 sub writePOST {
     my $text = '';
-    #totally non-blocking tick - one file per twiki op - will scale up to the point where there are too many
+    #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
     my $dir = Foswiki::Func::getWorkArea(${pluginName});
     my $script = Foswiki::Func::getCgiQuery()->script_name();
     $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
     $script = $1;
-    #TODO: use TWiki session id's if available
+    #TODO: use Foswiki session id's if available
     my $session = Foswiki::Func::getCgiQuery()->remote_host();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
@@ -186,13 +186,13 @@ sub writePOST {
 
 sub writeTEXT {
     my $text = shift;
-    #totally non-blocking tick - one file per twiki op - will scale up to the point where there are too many
+    #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
     my $dir = Foswiki::Func::getWorkArea(${pluginName});
     my $script = Foswiki::Func::getCgiQuery()->script_name();
     $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
     $script = $1;
-    #TODO: use TWiki session id's if available
+    #TODO: use Foswiki session id's if available
     my $session = Foswiki::Func::getCgiQuery()->remote_host();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
@@ -219,7 +219,7 @@ sub writeTEXT {
 # You would have one of these for each variable you want to process.
 sub _EXAMPLETAG {
     my($session, $params, $theTopic, $theWeb) = @_;
-    # $session  - a reference to the TWiki session object (if you don't know
+    # $session  - a reference to the Foswiki session object (if you don't know
     #             what this is, just ignore it)
     # $params=  - a reference to a Foswiki::Attrs object containing parameters.
     #             This can be used as a simple hash that maps parameter names
@@ -255,7 +255,7 @@ sub DISABLE_earlyInitPlugin {
    * =$loginName= - login name recovered from $ENV{REMOTE_USER}
    * =$url= - request url
    * =$pathInfo= - pathinfo from the CGI query
-Allows a plugin to set the username. Normally TWiki gets the username
+Allows a plugin to set the username. Normally Foswiki gets the username
 from the login manager. This handler gives you a chance to override the
 login manager.
 
@@ -281,7 +281,7 @@ sub DISABLE_initializeUserHandler {
    * =$wikiName= - users wiki name
    * =$loginName= - users login name
 
-Called when a new user registers with this TWiki.
+Called when a new user registers with this Foswiki.
 
 *Since:* Foswiki::Plugins::VERSION = '1.010'
 
@@ -310,7 +310,7 @@ For variables with trivial syntax it is far more efficient to use
 =Foswiki::Func::registerTagHandler= (see =initPlugin=).
 
 Plugins that have to parse the entire topic content should implement
-this function. Internal TWiki
+this function. Internal Foswiki
 variables (and any variables declared using =Foswiki::Func::registerTagHandler=)
 are expanded _before_, and then again _after_, this function is called
 to ensure all %<nop>TAGS% are expanded.
@@ -350,7 +350,7 @@ sub DISABLE_commonTagsHandler {
    * =$topic= - the name of the topic in the current CGI query
    * =$web= - the name of the web in the current CGI query
    * =$meta= - meta-data object for the topic MAY BE =undef=
-This handler is called before TWiki does any expansion of it's own
+This handler is called before Foswiki does any expansion of its own
 internal variables. It is designed for use by cache plugins. Note that
 when this handler is called, &lt;verbatim> blocks are still present
 in the text.
@@ -380,7 +380,7 @@ sub DISABLE_beforeCommonTagsHandler {
    * =$topic= - the name of the topic in the current CGI query
    * =$web= - the name of the web in the current CGI query
    * =$meta= - meta-data object for the topic MAY BE =undef=
-This handler is after TWiki has completed expansion of %TAGS%.
+This handler is after Foswiki has completed expansion of %TAGS%.
 It is designed for use by cache plugins. Note that when this handler
 is called, &lt;verbatim> blocks are present in the text.
 
@@ -406,7 +406,7 @@ sub DISABLE_afterCommonTagsHandler {
    * =$text= - text, with the head, verbatim and pre blocks replaced with placeholders
    * =\%removed= - reference to a hash that maps the placeholders to the removed blocks.
 
-Handler called immediately before TWiki syntax structures (such as lists) are
+Handler called immediately before Foswiki syntax structures (such as lists) are
 processed, but after all variables have been expanded. Use this handler to 
 process special syntax only recognised by your plugin.
 
@@ -733,7 +733,7 @@ sub DISABLE_modifyHeaderHandler {
    * =$query= - the CGI query
    * =$url= - the URL to redirect to
 
-This handler can be used to replace TWiki's internal redirect function.
+This handler can be used to replace Foswiki's internal redirect function.
 
 If this handler is defined in more than one plugin, only the handler
 in the earliest plugin in the INSTALLEDPLUGINS list will be called. All
@@ -809,7 +809,7 @@ sub DISABLE_renderWikiWordHandler {
 ---++ completePageHandler($html, $httpHeaders)
 
 This handler is called on the ingredients of every page that is
-output by the standard TWiki scripts. It is designed primarily for use by
+output by the standard Foswiki scripts. It is designed primarily for use by
 cache and security plugins.
    * =$html= - the body of the page (normally &lt;html>..$lt;/html>)
    * =$httpHeaders= - the HTTP headers. Note that the headers do not contain
@@ -830,11 +830,11 @@ sub DISABLE_completePageHandler {
 ---++ restExample($session) -> $text
 
 This is an example of a sub to be called by the =rest= script. The parameter is:
-   * =$session= - The TWiki object associated to this session.
+   * =$session= - The Foswiki object associated to this session.
 
 Additional parameters can be recovered via de query object in the $session.
 
-For more information, check TWiki:TWiki.TWikiScripts#rest
+For more information, check Foswiki:System.Scripts#rest
 
 *Since:* Foswiki::Plugins::VERSION 1.1
 
