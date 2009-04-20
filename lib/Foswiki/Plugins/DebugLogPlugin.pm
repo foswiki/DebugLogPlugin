@@ -130,9 +130,10 @@ sub initPlugin {
     # Example code of how to get a preference value, register a variable handler
     # and register a RESTHandler. (remove code you do not need)
     
-    my $method = Foswiki::Func::getRequest()->method() || '';
-    writePOST() if $method eq 'POST';
-    
+    if ( my $method = Foswiki::Func::getRequest()->method() ) {
+	writePOST() if $method eq 'POST';
+	#writeGET() if $method eq 'GET';
+    }
 
     # Set plugin preferences in LocalSite.cfg, like this:
     # $Foswiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} = 1;
@@ -167,6 +168,34 @@ sub writePOST {
     $session = $1;
 
     my $file = join('-', ('POST', $script,
+                          $Current_web.'.'.$Current_topic, $Current_user, $session,
+                          Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
+                          ));
+    my $tickfile = $dir.'/'.$file;
+
+    Foswiki::Func::writeDebug( "$tickfile" ) if $debug;
+
+    $tickfile =~ /^(.*)$/;      #TODO: need to remove this and untaint at the right source
+    $tickfile = $1;
+
+    open( TICK, '>', $tickfile) or warn "$!";
+    #print TICK $text;       #a nothing :)
+    Foswiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
+    close( TICK );
+}
+
+sub writeGET {
+    my $text = '';
+    #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
+    #requests for the FS to deal with
+    my $dir = Foswiki::Func::getWorkArea(${pluginName});
+    my $script = Foswiki::Func::getCgiQuery()->action();
+    #TODO: use Foswiki session id's if available
+    my $session = Foswiki::Func::getCgiQuery()->remote_addr();
+    $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
+    $session = $1;
+
+    my $file = join('-', ('GET', $script,
                           $Current_web.'.'.$Current_topic, $Current_user, $session,
                           Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
                           ));
