@@ -13,10 +13,10 @@
 
 =pod
 
----+ package TWiki::Plugins::DebugLogPlugin
+---+ package Foswiki::Plugins::DebugLogPlugin
 
 To interact with TWiki use ONLY the official API functions
-in the TWiki::Func module. Do not reference any functions or
+in the Foswiki::Func module. Do not reference any functions or
 variables elsewhere in TWiki, as these are subject to change
 without prior warning, and your plugin may suddenly stop
 working.
@@ -47,13 +47,13 @@ the text had been included from another topic.
 =cut
 
 
-package TWiki::Plugins::DebugLogPlugin;
+package Foswiki::Plugins::DebugLogPlugin;
 
 # Always use strict to enforce variable scoping
 use strict;
 
-require TWiki::Func;    # The plugins API
-require TWiki::Plugins; # For the API version
+require Foswiki::Func;    # The plugins API
+require Foswiki::Plugins; # For the API version
 
 # $VERSION is referred to by TWiki, and is the only global variable that
 # *must* exist in this package.
@@ -77,7 +77,7 @@ $SHORTDESCRIPTION = 'Detailed Debug logging for TWiki';
 # You must set $NO_PREFS_IN_TOPIC to 0 if you want your plugin to use preferences
 # stored in the plugin topic. This default is required for compatibility with
 # older plugins, but imposes a significant performance penalty, and
-# is not recommended. Instead, use $TWiki::cfg entries set in LocalSite.cfg, or
+# is not recommended. Instead, use $Foswiki::cfg entries set in LocalSite.cfg, or
 # if you want the users to be able to change settings, then use standard TWiki
 # preferences that can be defined in your Main.TWikiPreferences and overridden
 # at the web and topic level.
@@ -98,14 +98,14 @@ REQUIRED
 
 Called to initialise the plugin. If everything is OK, should return
 a non-zero value. On non-fatal failure, should write a message
-using TWiki::Func::writeWarning and return 0. In this case
+using Foswiki::Func::writeWarning and return 0. In this case
 %FAILEDPLUGINS% will indicate which plugins failed.
 
 In the case of a catastrophic failure that will prevent the whole
 installation from working safely, this handler may use 'die', which
 will be trapped and reported in the browser.
 
-You may also call =TWiki::Func::registerTagHandler= here to register
+You may also call =Foswiki::Func::registerTagHandler= here to register
 a function to handle variables that have standard TWiki syntax - for example,
 =%MYTAG{"my param" myarg="My Arg"}%. You can also override internal
 TWiki variable handling functions this way, though this practice is unsupported
@@ -122,33 +122,33 @@ sub initPlugin {
     ( $Current_topic, $Current_web, $Current_user, $installWeb ) = @_;
 
     # check for Plugins.pm versions
-    if( $TWiki::Plugins::VERSION < 1.026 ) {
-        TWiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm" );
+    if( $Foswiki::Plugins::VERSION < 1.026 ) {
+        Foswiki::Func::writeWarning( "Version mismatch between $pluginName and Plugins.pm" );
         return 0;
     }
 
     # Example code of how to get a preference value, register a variable handler
     # and register a RESTHandler. (remove code you do not need)
     
-    writePOST() if (TWiki::Func::getCgiQuery()->request_method() eq 'POST');
+    writePOST() if (Foswiki::Func::getCgiQuery()->request_method() eq 'POST');
     
 
     # Set plugin preferences in LocalSite.cfg, like this:
-    # $TWiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} = 1;
+    # $Foswiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} = 1;
     # Always provide a default in case the setting is not defined in
     # LocalSite.cfg. See TWiki.TWikiPlugins for help in adding your plugin
     # configuration to the =configure= interface.
-    my $setting = $TWiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} || 0;
-    $debug = $TWiki::cfg{Plugins}{DebugLogPlugin}{Debug} || 0;
+    my $setting = $Foswiki::cfg{Plugins}{DebugLogPlugin}{ExampleSetting} || 0;
+    $debug = $Foswiki::cfg{Plugins}{DebugLogPlugin}{Debug} || 0;
 
     # register the _EXAMPLETAG function to handle %EXAMPLETAG{...}%
     # This will be called whenever %EXAMPLETAG% or %EXAMPLETAG{...}% is
     # seen in the topic text.
-    #TWiki::Func::registerTagHandler( 'EXAMPLETAG', \&_EXAMPLETAG );
+    #Foswiki::Func::registerTagHandler( 'EXAMPLETAG', \&_EXAMPLETAG );
 
     # Allow a sub to be called from the REST interface 
     # using the provided alias
-    #TWiki::Func::registerRESTHandler('example', \&restExample);
+    #Foswiki::Func::registerRESTHandler('example', \&restExample);
 
     # Plugin correctly initialized
     return 1;
@@ -158,29 +158,29 @@ sub writePOST {
     my $text = '';
     #totally non-blocking tick - one file per twiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
-    my $dir = TWiki::Func::getWorkArea(${pluginName});
-    my $script = TWiki::Func::getCgiQuery()->script_name();
+    my $dir = Foswiki::Func::getWorkArea(${pluginName});
+    my $script = Foswiki::Func::getCgiQuery()->script_name();
     $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
     $script = $1;
     #TODO: use TWiki session id's if available
-    my $session = TWiki::Func::getCgiQuery()->remote_host();
+    my $session = Foswiki::Func::getCgiQuery()->remote_host();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
 
     my $file = join('-', ('POST', $script,
                           $Current_web.'.'.$Current_topic, $Current_user, $session,
-                          TWiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
+                          Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
                           ));
     my $tickfile = '>'.$dir.'/'.$file;
 
-    TWiki::Func::writeDebug( "$tickfile" ) if $debug;
+    Foswiki::Func::writeDebug( "$tickfile" ) if $debug;
 
     $tickfile =~ /^(.*)$/;      #TODO: need to remove this and untaint at the right source
     $tickfile = $1;
 
     open( TICK, $tickfile);
     #print TICK $text;       #a nothing :)
-    TWiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
+    Foswiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
     close( TICK );
 }
 
@@ -188,28 +188,28 @@ sub writeTEXT {
     my $text = shift;
     #totally non-blocking tick - one file per twiki op - will scale up to the point where there are too many
     #requests for the FS to deal with
-    my $dir = TWiki::Func::getWorkArea(${pluginName});
-    my $script = TWiki::Func::getCgiQuery()->script_name();
+    my $dir = Foswiki::Func::getWorkArea(${pluginName});
+    my $script = Foswiki::Func::getCgiQuery()->script_name();
     $script =~ /([^\s\/\\]*)[\/\\]?$/;      #i really don't know why CGI does not intaint this one
     $script = $1;
     #TODO: use TWiki session id's if available
-    my $session = TWiki::Func::getCgiQuery()->remote_host();
+    my $session = Foswiki::Func::getCgiQuery()->remote_host();
     $session =~ /^(.*)$/;      #i really don't know why CGI does not intaint this one
     $session = $1;
 
     my $file = join('-', ('topic', $script,
                           $Current_web.'.'.$Current_topic, $Current_user, $session,
-                          TWiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
+                          Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
                           ));
     my $tickfile = '>'.$dir.'/'.$file;
 
-    TWiki::Func::writeDebug( "$tickfile" ) if $debug;
+    Foswiki::Func::writeDebug( "$tickfile" ) if $debug;
 
     $tickfile =~ /^(.*)$/;      #TODO: need to remove this and untaint at the right source
     $tickfile = $1;
 
     open( TICK, $tickfile);
-    TWiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
+    Foswiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
     print TICK "\n==============\n";
     print TICK $text;       #a nothing :)
     close( TICK );
@@ -221,7 +221,7 @@ sub _EXAMPLETAG {
     my($session, $params, $theTopic, $theWeb) = @_;
     # $session  - a reference to the TWiki session object (if you don't know
     #             what this is, just ignore it)
-    # $params=  - a reference to a TWiki::Attrs object containing parameters.
+    # $params=  - a reference to a Foswiki::Attrs object containing parameters.
     #             This can be used as a simple hash that maps parameter names
     #             to values, with _DEFAULT being the name for the default
     #             parameter.
@@ -263,7 +263,7 @@ Return the *login* name.
 
 This handler is called very early, immediately after =earlyInitPlugin=.
 
-*Since:* TWiki::Plugins::VERSION = '1.010'
+*Since:* Foswiki::Plugins::VERSION = '1.010'
 
 =cut
 
@@ -271,7 +271,7 @@ sub DISABLE_initializeUserHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $loginName, $url, $pathInfo ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::initializeUserHandler( $_[0], $_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::initializeUserHandler( $_[0], $_[1] )" ) if $debug;
 }
 
 =pod
@@ -283,7 +283,7 @@ sub DISABLE_initializeUserHandler {
 
 Called when a new user registers with this TWiki.
 
-*Since:* TWiki::Plugins::VERSION = '1.010'
+*Since:* Foswiki::Plugins::VERSION = '1.010'
 
 =cut
 
@@ -291,7 +291,7 @@ sub DISABLE_registrationHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $web, $wikiName, $loginName ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::registrationHandler( $_[0], $_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::registrationHandler( $_[0], $_[1] )" ) if $debug;
 }
 
 =pod
@@ -307,11 +307,11 @@ the topic body and in form fields. It may be called many times while
 a topic is being rendered.
 
 For variables with trivial syntax it is far more efficient to use
-=TWiki::Func::registerTagHandler= (see =initPlugin=).
+=Foswiki::Func::registerTagHandler= (see =initPlugin=).
 
 Plugins that have to parse the entire topic content should implement
 this function. Internal TWiki
-variables (and any variables declared using =TWiki::Func::registerTagHandler=)
+variables (and any variables declared using =Foswiki::Func::registerTagHandler=)
 are expanded _before_, and then again _after_, this function is called
 to ensure all %<nop>TAGS% are expanded.
 
@@ -322,7 +322,7 @@ removed from the text (though all other blocks such as &lt;pre> and
 __NOTE:__ meta-data is _not_ embedded in the text passed to this
 handler. Use the =$meta= object.
 
-*Since:* $TWiki::Plugins::VERSION 1.000
+*Since:* $Foswiki::Plugins::VERSION 1.000
 
 =cut
 
@@ -336,7 +336,7 @@ sub DISABLE_commonTagsHandler {
     #         return;
     #   }
 
-    TWiki::Func::writeDebug( "- ${pluginName}::commonTagsHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::commonTagsHandler( $_[2].$_[1] )" ) if $debug;
 
     # do custom extension rule, like for example:
     # $_[0] =~ s/%XYZ%/&handleXyz()/ge;
@@ -370,7 +370,7 @@ sub DISABLE_beforeCommonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web, $meta ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::beforeCommonTagsHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::beforeCommonTagsHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -397,7 +397,7 @@ sub DISABLE_afterCommonTagsHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web, $meta ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::afterCommonTagsHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::afterCommonTagsHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -443,7 +443,7 @@ it may be called several times during the rendering of a topic.
 __NOTE:__ meta-data is _not_ embedded in the text passed to this
 handler.
 
-Since TWiki::Plugins::VERSION = '1.026'
+Since Foswiki::Plugins::VERSION = '1.026'
 
 =cut
 
@@ -463,7 +463,7 @@ it may be called several times during the rendering of a topic.
 __NOTE:__ meta-data is _not_ embedded in the text passed to this
 handler.
 
-Since TWiki::Plugins::VERSION = '1.026'
+Since Foswiki::Plugins::VERSION = '1.026'
 
 =cut
 
@@ -484,7 +484,7 @@ in the edit box. It is called once when the =edit= script is run.
 __NOTE__: meta-data may be embedded in the text passed to this handler 
 (using %META: tags)
 
-*Since:* TWiki::Plugins::VERSION = '1.010'
+*Since:* Foswiki::Plugins::VERSION = '1.010'
 
 =cut
 
@@ -492,7 +492,7 @@ sub DISABLE_beforeEditHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::beforeEditHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::beforeEditHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -510,7 +510,7 @@ __NOTE:__ this handler is _not_ called unless the text is previewed.
 __NOTE:__ meta-data is _not_ embedded in the text passed to this
 handler. Use the =$meta= object.
 
-*Since:* $TWiki::Plugins::VERSION 1.010
+*Since:* $Foswiki::Plugins::VERSION 1.010
 
 =cut
 
@@ -518,7 +518,7 @@ sub DISABLE_afterEditHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::afterEditHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::afterEditHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -527,7 +527,7 @@ sub DISABLE_afterEditHandler {
    * =$text= - text _with embedded meta-data tags_
    * =$topic= - the name of the topic in the current CGI query
    * =$web= - the name of the web in the current CGI query
-   * =$meta= - the metadata of the topic being saved, represented by a TWiki::Meta object.
+   * =$meta= - the metadata of the topic being saved, represented by a Foswiki::Meta object.
 
 This handler is called each time a topic is saved.
 
@@ -538,7 +538,7 @@ object, never both. You are recommended to modify the =$meta= object rather
 than the text, as this approach is proof against changes in the embedded
 text format.
 
-*Since:* TWiki::Plugins::VERSION = '1.010'
+*Since:* Foswiki::Plugins::VERSION = '1.010'
 
 =cut
 
@@ -546,7 +546,7 @@ sub DISABLE_beforeSaveHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::beforeSaveHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::beforeSaveHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -557,13 +557,13 @@ sub DISABLE_beforeSaveHandler {
    * =$topic= - the name of the topic in the current CGI query
    * =$web= - the name of the web in the current CGI query
    * =$error= - any error string returned by the save.
-   * =$meta= - the metadata of the saved topic, represented by a TWiki::Meta object 
+   * =$meta= - the metadata of the saved topic, represented by a Foswiki::Meta object 
 
 This handler is called each time a topic is saved.
 
 __NOTE:__ meta-data is embedded in $text (using %META: tags)
 
-*Since:* TWiki::Plugins::VERSION 1.025
+*Since:* Foswiki::Plugins::VERSION 1.025
 
 =cut
 
@@ -571,7 +571,7 @@ sub DISABLE_afterSaveHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $text, $topic, $web, $error, $meta ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::afterSaveHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -587,7 +587,7 @@ sub DISABLE_afterSaveHandler {
 
 This handler is called just after the rename/move/delete action of a web, topic or attachment.
 
-*Since:* TWiki::Plugins::VERSION = '1.11'
+*Since:* Foswiki::Plugins::VERSION = '1.11'
 
 =cut
 
@@ -595,7 +595,7 @@ sub DISABLE_afterRenameHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ### my ( $oldWeb, $oldTopic, $oldAttachment, $newWeb, $newTopic, $newAttachment ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::afterRenameHandler( " .
+    Foswiki::Func::writeDebug( "- ${pluginName}::afterRenameHandler( " .
                              "$_[0].$_[1] $_[2] -> $_[3].$_[4] $_[5] )" ) if $debug;
 }
 
@@ -614,14 +614,14 @@ The attributes hash will include at least the following attributes:
    * =user= - the user id
    * =tmpFilename= - name of a temporary file containing the attachment data
 
-*Since:* TWiki::Plugins::VERSION = 1.025
+*Since:* Foswiki::Plugins::VERSION = 1.025
 
 =cut
 
 sub DISABLE_beforeAttachmentSaveHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ###   my( $attrHashRef, $topic, $web ) = @_;
-    TWiki::Func::writeDebug( "- ${pluginName}::beforeAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::beforeAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -637,14 +637,14 @@ will include at least the following attributes:
    * =comment= - the comment
    * =user= - the user id
 
-*Since:* TWiki::Plugins::VERSION = 1.025
+*Since:* Foswiki::Plugins::VERSION = 1.025
 
 =cut
 
 sub DISABLE_afterAttachmentSaveHandler {
     # do not uncomment, use $_[0], $_[1]... instead
     ###   my( $attrHashRef, $topic, $web ) = @_;
-    TWiki::Func::writeDebug( "- ${pluginName}::afterAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::afterAttachmentSaveHandler( $_[2].$_[1] )" ) if $debug;
 }
 
 =pod
@@ -689,7 +689,7 @@ merge the data:
 The merge handler is called whenever a topic is saved, and a merge is 
 required to resolve concurrent edits on a topic.
 
-*Since:* TWiki::Plugins::VERSION = 1.1
+*Since:* Foswiki::Plugins::VERSION = 1.1
 
 =cut
 
@@ -715,16 +715,16 @@ $headers->{expires} = '+1h';
 
 Note that this is the HTTP header which is _not_ the same as the HTML
 &lt;HEAD&gt; tag. The contents of the &lt;HEAD&gt; tag may be manipulated
-using the =TWiki::Func::addToHEAD= method.
+using the =Foswiki::Func::addToHEAD= method.
 
-*Since:* TWiki::Plugins::VERSION 1.1
+*Since:* Foswiki::Plugins::VERSION 1.1
 
 =cut
 
 sub DISABLE_modifyHeaderHandler {
     my ( $headers, $query ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::modifyHeaderHandler()" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::modifyHeaderHandler()" ) if $debug;
 }
 
 =pod
@@ -739,7 +739,7 @@ If this handler is defined in more than one plugin, only the handler
 in the earliest plugin in the INSTALLEDPLUGINS list will be called. All
 the others will be ignored.
 
-*Since:* TWiki::Plugins::VERSION 1.010
+*Since:* Foswiki::Plugins::VERSION 1.010
 
 =cut
 
@@ -747,7 +747,7 @@ sub DISABLE_redirectCgiQueryHandler {
     # do not uncomment, use $_[0], $_[1] instead
     ### my ( $query, $url ) = @_;
 
-    TWiki::Func::writeDebug( "- ${pluginName}::redirectCgiQueryHandler( query, $_[1] )" ) if $debug;
+    Foswiki::Func::writeDebug( "- ${pluginName}::redirectCgiQueryHandler( query, $_[1] )" ) if $debug;
 }
 
 =pod
@@ -769,12 +769,12 @@ should be done by the built-in type handlers.
 Return HTML text that renders this field. If false, form rendering
 continues by considering the built-in types.
 
-*Since:* TWiki::Plugins::VERSION 1.1
+*Since:* Foswiki::Plugins::VERSION 1.1
 
 Note that since TWiki-4.2, you can also extend the range of available
-types by providing a subclass of =TWiki::Form::FieldDefinition= to implement
-the new type (see =TWiki::Plugins.JSCalendarContrib= and
-=TWiki::Plugins.RatingContrib= for examples). This is the preferred way to
+types by providing a subclass of =Foswiki::Form::FieldDefinition= to implement
+the new type (see =Foswiki::Plugins.JSCalendarContrib= and
+=Foswiki::Plugins.RatingContrib= for examples). This is the preferred way to
 extend the form field types, but does not work for TWiki < 4.2.
 
 =cut
@@ -795,7 +795,7 @@ the rendering of labels used for links.
 
 Return the new link text.
 
-*Since:* TWiki::Plugins::VERSION 1.1
+*Since:* Foswiki::Plugins::VERSION 1.1
 
 =cut
 
@@ -816,7 +816,7 @@ cache and security plugins.
      a =Content-length=. That will be computed and added immediately before
      the page is actually written. This is a string, which must end in \n\n.
 
-*Since:* TWiki::Plugins::VERSION 1.2
+*Since:* Foswiki::Plugins::VERSION 1.2
 
 =cut
 
@@ -836,7 +836,7 @@ Additional parameters can be recovered via de query object in the $session.
 
 For more information, check TWiki:TWiki.TWikiScripts#rest
 
-*Since:* TWiki::Plugins::VERSION 1.1
+*Since:* Foswiki::Plugins::VERSION 1.1
 
 =cut
 

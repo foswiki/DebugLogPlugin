@@ -49,6 +49,6 @@ Many thanks to the following sponsors for supporting this work:
 |  Feedback: | http://twiki.org/cgi-bin/view/Plugins/DebugLogPluginDev |
 |  Appraisal: | http://twiki.org/cgi-bin/view/Plugins/DebugLogPluginAppraisal |
 
-__Related Topics:__ %TWIKIWEB%.TWikiPlugins, %TWIKIWEB%.DeveloperDocumentationCategory, %TWIKIWEB%.AdminDocumentationCategory, %TWIKIWEB%.TWikiPreferences
+__Related Topics:__ [[%SYSTEMWEB%.Plugins][Plugins]], %TWIKIWEB%.DeveloperDocumentationCategory, %TWIKIWEB%.AdminDocumentationCategory, %SYSTEMWEB%.SitePreferences
 
 <!-- Do _not_ attempt to edit this topic; it is auto-generated. Please add comments/questions/remarks to the feedback topic on twiki.org instead. -->
