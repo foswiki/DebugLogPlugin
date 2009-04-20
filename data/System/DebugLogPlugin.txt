@@ -42,7 +42,7 @@ Many thanks to the following sponsors for supporting this work:
 |  License: | [[http://www.gnu.org/licenses/gpl.html][GPL (Gnu General Public License)]] |
 |  Plugin Version: | 0 (20 Apr 2009) |
 |  Change History: | <!-- versions below in reverse order -->&nbsp; |
-|  20 Apr 2009 | Ported to Foswiki  -- Foswiki:Main.WillNorris |
+|  20 Apr 2009 | Ported to Foswiki  -- Foswiki:Main.WillNorris and Foswiki:Main.GilmarSantosJr |
 |  Dependencies: | None |
 |  Plugin Home: | http://foswiki.org/Extensions/DebugLogPlugin |
 |  Support: | http://foswiki.org/Support/DebugLogPlugin |

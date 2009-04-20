@@ -197,14 +197,14 @@ sub writeTEXT {
                           $Current_web.'.'.$Current_topic, $Current_user, $session,
                           Foswiki::Func::formatTime(time(), '$ye:$mo:$day:$hours:$minutes:$seconds', 'gmtime'), rand()
                           ));
-    my $tickfile = '>'.$dir.'/'.$file;
+    my $tickfile = $dir.'/'.$file;
 
     Foswiki::Func::writeDebug( "$tickfile" ) if $debug;
 
     $tickfile =~ /^(.*)$/;      #TODO: need to remove this and untaint at the right source
     $tickfile = $1;
 
-    open( TICK, $tickfile);
+    open( TICK, '>', $tickfile) or warn $!;
     Foswiki::Func::getCgiQuery()->save(\*TICK);   #save the CGI query params
     print TICK "\n==============\n";
     print TICK $text;       #a nothing :)
