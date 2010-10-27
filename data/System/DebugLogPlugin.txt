@@ -8,9 +8,13 @@ One line description, required for extensions repository catalog.
 %TOC%
 
 ---++ Usage
-I will fill in more details later - right now it is specifically for those people trying to fix the pre-4.2.0 release bug.
+This Plugin allows a developer or admin to log all url parameters GETed or POSTed to foswiki. 
+This can be useful both for debuging issues involving complex multi-request issues, or for gathering a dataset to be used for performance testing (as they can be replayed onto a existing backup).
 
----++ Examples
+It can gather performance information for individual MACRO's
+
+---++ TO DO's
+   1 rewrite as a Logger?
 
 ---++ Installation Instructions
 
