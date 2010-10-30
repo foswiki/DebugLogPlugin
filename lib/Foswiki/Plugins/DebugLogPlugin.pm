@@ -141,7 +141,7 @@ sub earlyInitPlugin {
     if ( $Foswiki::cfg{DebugLogPlugin}{MonitorMacros} ) {
         foreach my $tag ( keys( %{ $Foswiki::cfg{DebugLogPlugin}{Monitor} } ) )
         {
-            Monitor::monitorMACRO( $tag, \&writeLog );
+            Monitor::monitorMACRO( $tag, $Foswiki::cfg{DebugLogPlugin}{Monitor}{$tag}, \&writeLog );
         }
     }
 
