@@ -148,6 +148,36 @@ sub earlyInitPlugin {
     return undef;
 }
 
+=begin TML
+
+---++ completePageHandler($html, $httpHeaders)
+
+This handler is called on the ingredients of every page that is
+output by the standard CGI scripts. It is designed primarily for use by
+cache and security plugins.
+   * =$html= - the body of the page (normally &lt;html>..$lt;/html>)
+   * =$httpHeaders= - the HTTP headers. Note that the headers do not contain
+     a =Content-length=. That will be computed and added immediately before
+     the page is actually written. This is a string, which must end in \n\n.
+
+*Since:* Foswiki::Plugins::VERSION 2.0
+
+=cut
+
+sub completePageHandler {
+#    my( $html, $httpHeaders ) = @_;
+#    # modify $_[0] or $_[1] if you must change the HTML or headers
+#    # You can work on $html and $httpHeaders in place by using the
+#    # special perl variables $_[0] and $_[1]. These allow you to operate
+#    # on parameters as if they were passed by reference; for example:
+#    # $_[0] =~ s/SpecialString/my alternative/ge;
+    if (   ( $Foswiki::cfg{DebugLogPlugin}{RequestTimes} )
+        or ( $Foswiki::cfg{DebugLogPlugin}{MonitorMacros} ) ) {
+        my $times = Monitor::getRunTimeSoFar();
+        $Foswiki::Plugins::SESSION->{response}->pushHeader('X-Foswiki-Rendertime', $times);
+    }
+}
+
 sub mergeHandler {
 
     #my ($diff, $old, $new, $infoRef) = @_;

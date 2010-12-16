@@ -13,6 +13,10 @@ This can be useful both for debuging issues involving complex multi-request issu
 
 It can gather performance information for individual MACRO's
 
+---+++ output
+Most of the information logged by this plugin is in its WorkDir. However, it also adds a =X-Foswiki-Rendertime= header to the HTTP response, that can be used as an approximation
+of the time taken to render the entire request.
+
 ---++ TO DO's
    1 rewrite as a Logger?
 

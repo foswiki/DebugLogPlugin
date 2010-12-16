@@ -3,12 +3,12 @@
 # ---+++ Request Logging
 # **BOOLEAN**
 # log HTTP POST
-$Foswiki::cfg{DebugLogPlugin}{LogPOST} = 1; 
-# **BOOLEAN**
-# log HTTP GET
 $Foswiki::cfg{DebugLogPlugin}{LogPOST} = 0; 
 # **BOOLEAN**
-# Monitor request Timing
+# log HTTP GET
+$Foswiki::cfg{DebugLogPlugin}{LogGET} = 0; 
+# **BOOLEAN**
+# Monitor Merge request Timing
 $Foswiki::cfg{DebugLogPlugin}{LogMerge} = 0; 
 
 # ---+++ Performance Logging
