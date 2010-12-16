@@ -174,7 +174,7 @@ sub completePageHandler {
     if (   ( $Foswiki::cfg{DebugLogPlugin}{RequestTimes} )
         or ( $Foswiki::cfg{DebugLogPlugin}{MonitorMacros} ) ) {
         my $times = Monitor::getRunTimeSoFar();
-        $Foswiki::Plugins::SESSION->{response}->pushHeader('X-Foswiki-Rendertime', $times);
+        $Foswiki::Plugins::SESSION->{response}->pushHeader('X-Foswiki-Monitor-DebugLogPlugin-Rendertime', $times);
     }
 }
 
