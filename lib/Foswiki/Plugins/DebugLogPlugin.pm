@@ -74,7 +74,7 @@ sub initPlugin {
 #TODO: need to extract and abstract so I cna write  DBI, Syslog, Foswiki::Logger, MongoDB 'writers'
 sub writeLog {
     my $logtype = shift || 'topic';
-    my $text = shift;
+    my $text = shift;		#this is actually a hash whenever possible - like Monitor::monitorMacro
 
 #totally non-blocking tick - one file per foswiki op - will scale up to the point where there are too many
 #requests for the FS to deal with
@@ -112,6 +112,14 @@ sub writeLog {
     if ( defined($text) ) {
         print TICK "\n==============\n";
         if ( ref($text) eq 'HASH' ) {
+		#as we're being more intellegent, we can also add a little more info here
+$text->{Store} = ();
+$text->{Store}{Implementation} = $Foswiki::cfg{Store}{Implementation};
+$text->{Store}{SearchAlgorithm} = $Foswiki::cfg{Store}{SearchAlgorithm};
+$text->{Store}{QueryAlgorithm} = $Foswiki::cfg{Store}{QueryAlgorithm};
+$text->{Store}{PrefsBackend} = $Foswiki::cfg{Store}{PrefsBackend};
+$text->{EnableHierarchicalWebs} = $Foswiki::cfg{EnableHierarchicalWebs};
+
             use Data::Dumper;
             print TICK 'HASH ' . Dumper($text);
         }
